@@ -18,6 +18,8 @@ def predict_bulk():
     runs the prediction of the model on encoded picture
     :return: json of predictions
     """
+    if 'model' not in globals():
+        model = read_model(MODEL_FILE)
     r = flask.request.get_data()
     # convert string of image data to uint8
     # print(r)
@@ -61,8 +63,17 @@ def main():
 
 
 if __name__ == '__main__':
-    physcial_devices = tf.config.list_physical_devices('GPU')
-    tf.config.experimental.set_memory_growth(physcial_devices[0], True)
+    # physcial_devices = tf.config.list_physical_devices('GPU')
+    # tf.config.experimental.set_memory_growth(physcial_devices[0], True)
+    # model = main()
+    # app.run()
     model = main()
-    app.run()
+    port = os.environ.get('PORT')
+    if port:
+        # 'PORT' variable exists - running on Heroku, listen on external IP and on given by Heroku port
+        app.run(host='0.0.0.0', port=int(port))
+    else:
+        # 'PORT' variable doesn't exist, running not on Heroku, presumabely running locally, run with default
+        #   values for Flask (listening only on localhost on default Flask port)
+        app.run()
     # app.run(host='0.0.0.0')
